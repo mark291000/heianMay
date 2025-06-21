@@ -11,7 +11,7 @@ st.title("HEIAN Data Extractor")
 st.markdown("Upload one or more PDF files to extract and combine table information.")
 
 # Upload nhiều file
-uploaded_files = st.file_uploader("Upload PDF file(s)", type=["pdf"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("📌 For any issues related to the app, please contact Mark Dang.", type=["pdf"], accept_multiple_files=True)
 
 # Hàm xử lý từng file PDF
 def extract_info_from_pdf(file):
