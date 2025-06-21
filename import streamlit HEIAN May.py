@@ -49,12 +49,12 @@ def extract_info_from_pdf(file):
                             row for row in data_rows
                             if not any(cell and "Yield:" in str(cell) for cell in row)
                         ]
-                        row_count += len(clean_rows) - 1
+                        row_count += len(clean_rows)
 
     info_df = pd.DataFrame([{
         "Date": current_date,
         "Program": filename,
-        "Per Sheet": row_count,
+        "Per Sheet": row_count - 1,
         "Total Part": qty_nested_val if qty_nested_val is not None else "N/A",
         "Frame per Kit": sheet_count if sheet_count is not None else "N/A",
         "Total of Table": kit_count if kit_count is not None else "N/A",
