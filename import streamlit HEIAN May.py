@@ -3,16 +3,17 @@ import pdfplumber
 import pandas as pd
 import re
 from datetime import datetime
+from io import BytesIO
 
-# Cấu hình giao diện
-st.set_page_config(page_title="PDF Extractor", layout="wide")
+# Giao diện Streamlit
+st.set_page_config(page_title="PDF Table Extractor", layout="wide")
 st.title("📄 PDF Table Extractor")
 st.markdown("Upload one or more PDF files to extract and combine table information.")
 
-# Tải nhiều file PDF
+# Upload nhiều file PDF
 uploaded_files = st.file_uploader("Upload PDF file(s)", type=["pdf"], accept_multiple_files=True)
 
-# Xử lý từng file
+# Hàm trích xuất dữ liệu từ 1 file PDF
 def extract_info_from_pdf(file):
     row_count = 0
     qty_nested_val = None
@@ -27,7 +28,7 @@ def extract_info_from_pdf(file):
         for page in pdf.pages:
             full_text += (page.extract_text() or "") + "\n"
 
-        # Tìm Sheet(s) và Kit(s)
+        # Tìm Sheet và Kit
         match = re.search(r"(\d+(?:\.\d+)?)\s*Sheet\(s\)\s*=\s*(\d+(?:\.\d+)?)\s*Kit\(s\)", full_text, re.IGNORECASE)
         if match:
             sheet_count = float(match.group(1))
@@ -38,13 +39,13 @@ def extract_info_from_pdf(file):
         if match_qty:
             qty_nested_val = float(match_qty.group(1))
 
-        # Xác định vật liệu
+        # Xác định loại vật liệu
         if "PLYWOOD" in full_text.upper():
             material_summary = "PLY"
         elif "OSB" in full_text.upper():
             material_summary = "OSB"
 
-        # Đếm dòng bảng (bỏ dòng chứa từ khóa)
+        # Đếm số dòng không chứa các từ khóa cần loại bỏ
         for page in pdf.pages:
             tables = page.extract_tables()
             if tables:
@@ -57,7 +58,7 @@ def extract_info_from_pdf(file):
                             continue
                         row_count += 1
 
-    # Trả kết quả dưới dạng dict (1 dòng)
+    # Trả kết quả
     return {
         "Date": current_date,
         "Program": filename,
@@ -68,14 +69,22 @@ def extract_info_from_pdf(file):
         "Material": material_summary
     }
 
-# Gộp kết quả tất cả file
+# Gộp kết quả từ tất cả các file
 if uploaded_files:
-    all_data = [extract_info_from_pdf(f) for f in uploaded_files]
+    all_data = [extract_info_from_pdf(file) for file in uploaded_files]
     final_df = pd.DataFrame(all_data)
-    
-    st.subheader("📋 Combined Table")
+
+    st.subheader("📋 Combined Result Table")
     st.dataframe(final_df, use_container_width=True)
 
-    # Tải Excel (tuỳ chọn)
-    excel_data = final_df.to_excel(index=False, engine='openpyxl')
-    st.download_button("⬇️ Download Excel", data=excel_data, file_name="combined_result.xlsx")
+    # Tạo file Excel và cho phép tải về
+    buffer = BytesIO()
+    final_df.to_excel(buffer, index=False, engine='openpyxl')
+    buffer.seek(0)
+
+    st.download_button(
+        label="⬇️ Download Excel",
+        data=buffer,
+        file_name="combined_result.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
