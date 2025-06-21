@@ -6,8 +6,8 @@ from datetime import datetime
 import os
 
 # Cấu hình giao diện
-st.set_page_config(page_title="PDF Table Extractor", layout="wide")
-st.title("📄 PDF Table Extractor")
+st.set_page_config(page_title="HEIAN Data Extractor", layout="wide")
+st.title("HEIAN Data Extractor")
 st.markdown("Upload one or more PDF files to extract and combine table information.")
 
 # Upload nhiều file
