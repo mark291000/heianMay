@@ -73,5 +73,5 @@ if uploaded_files:
     all_data = [extract_info_from_pdf(file) for file in uploaded_files]
     final_df = pd.DataFrame(all_data)
 
-    st.subheader("📋 Combined Result Table")
+    st.subheader("📋Result Table")
     st.dataframe(final_df, use_container_width=True)
