@@ -4,7 +4,7 @@ import pandas as pd
 import re
 from datetime import datetime
 
-# Giao diện Streamlit
+# Cấu hình giao diện
 st.set_page_config(page_title="PDF Table Extractor", layout="wide")
 st.title("📄 PDF Table Extractor")
 st.markdown("Upload one or more PDF files to extract information into a single table.")
@@ -41,20 +41,16 @@ def extract_info_from_pdf(file):
         elif "OSB" in full_text.upper():
             material_summary = "OSB"
 
-        # Trích dòng bảng (bỏ header)
+        # Đếm dòng trong bảng – bỏ dòng chứa "Part ID"
         for page in pdf.pages:
             tables = page.extract_tables()
             if tables:
                 for table in tables:
-                    if table and len(table) > 1:
-                        data_rows = table[1:]  # Bỏ dòng tiêu đề
-                        clean_rows = [
-                            row for row in data_rows
-                            if not any(cell and "Yield:" in str(cell) for cell in row)
-                        ]
-                        row_count += len(clean_rows)
+                    for row in table:
+                        if row and not any("Part ID" in str(cell) for cell in row):
+                            if not any(cell and "Yield:" in str(cell) for cell in row):
+                                row_count += 1
 
-    # Trả về 1 dòng dữ liệu cho mỗi file
     return {
         "Date": current_date,
         "Program": filename,
@@ -65,7 +61,7 @@ def extract_info_from_pdf(file):
         "Material": material_summary
     }
 
-# Gộp toàn bộ dữ liệu
+# Gộp dữ liệu nhiều file vào 1 bảng
 if uploaded_files:
     results = [extract_info_from_pdf(f) for f in uploaded_files]
     final_df = pd.DataFrame(results)
