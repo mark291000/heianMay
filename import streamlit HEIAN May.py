@@ -63,8 +63,8 @@ def extract_info_from_pdf(file):
         "Program": filename,
         "Per Sheet": row_count,
         "Total Part": qty_nested_val if qty_nested_val is not None else "N/A",
-        "Frame per Kit": sheet_count if sheet_count is not None else "N/A",
-        "Total of Table": kit_count if kit_count is not None else "N/A",
+        "Frame per Kit": kit_count if sheet_count is not None else "N/A",
+        "Total of Table": sheet_count if kit_count is not None else "N/A",
         "Material": material_summary
     }
 
