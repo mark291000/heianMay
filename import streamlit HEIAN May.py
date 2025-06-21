@@ -49,7 +49,7 @@ def extract_info_from_pdf(file):
                             row for row in data_rows
                             if not any(cell and "Yield:" in str(cell) for cell in row)
                         ]
-                        row_count += len(clean_rows)
+                        row_count += len(clean_rows) - 1
 
     info_df = pd.DataFrame([{
         "Date": current_date,
