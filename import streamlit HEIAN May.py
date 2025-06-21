@@ -3,13 +3,14 @@ import pdfplumber
 import pandas as pd
 import re
 from datetime import datetime
+import os
 
-# Giao diện Streamlit
+# Cấu hình giao diện
 st.set_page_config(page_title="PDF Table Extractor", layout="wide")
 st.title("📄 PDF Table Extractor")
 st.markdown("Upload one or more PDF files to extract and combine table information.")
 
-# Upload nhiều file PDF
+# Upload nhiều file
 uploaded_files = st.file_uploader("Upload PDF file(s)", type=["pdf"], accept_multiple_files=True)
 
 # Hàm xử lý từng file PDF
@@ -20,7 +21,7 @@ def extract_info_from_pdf(file):
     kit_count = None
     material_summary = "Unknown"
     current_date = datetime.now().strftime("%-m/%-d/%Y")
-    filename = file.name
+    filename = os.path.splitext(file.name)[0]  # ✅ Chỉ lấy tên, bỏ đuôi
 
     with pdfplumber.open(file) as pdf:
         full_text = ""
@@ -44,7 +45,7 @@ def extract_info_from_pdf(file):
         elif "OSB" in full_text.upper():
             material_summary = "OSB"
 
-        # Đếm dòng hợp lệ trong bảng
+        # Đếm dòng bảng hợp lệ
         for page in pdf.pages:
             tables = page.extract_tables()
             if tables:
@@ -67,7 +68,7 @@ def extract_info_from_pdf(file):
         "Material": material_summary
     }
 
-# Tổng hợp và hiển thị bảng
+# Tổng hợp và hiển thị kết quả
 if uploaded_files:
     all_data = [extract_info_from_pdf(file) for file in uploaded_files]
     final_df = pd.DataFrame(all_data)
